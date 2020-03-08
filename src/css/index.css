@@ -22,6 +22,14 @@ c-field{
   background-color: #b58863;
 }
 
+.input-field{
+
+  position: absolute;
+
+  right: 10;
+  top: 10;
+
+}
 
 /*PIECES*/
 c-piece{

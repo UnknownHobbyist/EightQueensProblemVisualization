@@ -18,15 +18,15 @@
     <script type="text/javascript">
 
       var chess;
-
-
       window.onload = function(){
 
         init();
-        init_listeners();
+        //init_listeners();
+        calc_queen_pos(0, 8);
+
+        alert("Alle Lösungen wurden berechnet!");
 
       };
-
       function init(){
 
         let c_board = document.getElementById("c-board"), c_field;
@@ -68,19 +68,115 @@
           if(!chess.isThreatenedField(x, y)){
             chess.setPiece(new Position(x, y), chess.PIECES.BLACK_QUEEN);
             chess.board.updatePieces();
-          }else{
-
-            alert("geht nicht");
-
           }
 
         };
 
       }
+      function clone(Obj) {
+        let buf; // the cloned object
+        if (Obj instanceof Array) {
+          buf = []; // create an empty array
+          var i = Obj.length;
+          while (i --) {
+            buf[i] = clone(Obj[i]); // recursively clone the elements
+          }
+          return buf;
+        } else if (Obj instanceof Object) {
+          buf = {}; // create an empty object
+          for (const k in Obj) {
+            if (obj.hasOwnProperty(k)) { // filter out another array's index
+              buf[k] = clone(Obj[k]); // recursively clone the value
+            }
+          }
+          return buf;
+        } else {
+          return Obj;
+        }
+      }
+      solutions = new Array();
+      function calc_queen_pos(current_row, size){
+
+        for(let i = 0; i < size; i++){
+
+          if(!chess.isThreatenedField(current_row, i)){
+
+            chess.setPiece(new Position(current_row, i), chess.PIECES.BLACK_QUEEN);
+
+            if(current_row == size - 1){
+
+              const field = clone(chess.board.field);
+              solutions.push(field);
+
+            }else{
+
+              calc_queen_pos(current_row + 1, size);
+              chess.setPiece(new Position(current_row, i), 0);
+
+            }
+
+          }
+
+        }
+
+      }
+      function exit( status ) {
+          var i;
+
+          if (typeof status === 'string') {
+              alert(status);
+          }
+
+          window.addEventListener('error', function (e) {e.preventDefault();e.stopPropagation();}, false);
+
+          var handlers = [
+              'copy', 'cut', 'paste',
+              'beforeunload', 'blur', 'change', 'click', 'contextmenu', 'dblclick', 'focus', 'keydown', 'keypress', 'keyup', 'mousedown', 'mousemove', 'mouseout', 'mouseover', 'mouseup', 'resize', 'scroll',
+              'DOMNodeInserted', 'DOMNodeRemoved', 'DOMNodeRemovedFromDocument', 'DOMNodeInsertedIntoDocument', 'DOMAttrModified', 'DOMCharacterDataModified', 'DOMElementNameChanged', 'DOMAttributeNameChanged', 'DOMActivate', 'DOMFocusIn', 'DOMFocusOut', 'online', 'offline', 'textInput',
+              'abort', 'close', 'dragdrop', 'load', 'paint', 'reset', 'select', 'submit', 'unload'
+          ];
+
+          function stopPropagation (e) {
+              e.stopPropagation();
+              // e.preventDefault(); // Stop for the form controls, etc., too?
+          }
+          for (i=0; i < handlers.length; i++) {
+              window.addEventListener(handlers[i], function (e) {stopPropagation(e);}, true);
+          }
+
+          if (window.stop) {
+              window.stop();
+          }
+
+          throw '';
+      }
+
+      function showSolution(index){
+        if(index >= 0 && index < solutions.length){
+          chess.board.field = solutions[index];
+          chess.board.updatePieces();
+        }else{
+          alert("Bitte gib einen gültigen Index ein. \nEs gibt nur " + solutions.length);
+        }
+      }
+
+      window.addEventListener("keyup", function(e){
+
+        switch(e.keyCode){
+
+          case 13:
+            console.log("Hello");
+            showSolution(parseInt(document.getElementById("input").value));
+            break;
+
+        }
+
+      });
 
     </script>
   </head>
   <body>
+    <input class="input-field" id="input">
     <hidden-piece id="hidden-piece"></hidden-piece>
     <c-board id="c-board">
     </c-board>
